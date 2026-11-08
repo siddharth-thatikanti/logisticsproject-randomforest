@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deliveryproject
+  labels:
+    app: deliveryproject
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deliveryproject
+  template:
+    metadata:
+      labels:
+        app: deliveryproject
+    spec:
+      containers:
+        - name: deliveryproject
+          image: sidduthatikanti93/deliveryproject:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8501
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deliveryproject-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+spec:
+  type: LoadBalancer
+  selector:
+    app: deliveryproject
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8501
+
